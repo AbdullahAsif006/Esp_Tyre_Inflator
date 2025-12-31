@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 import 'vehicle_inflation_page.dart';
+import 'ble_connection_page.dart'; // Add this line
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -84,6 +85,22 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Tyre Inflator"),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.black,
+        actions: [
+          // Add Connect button in AppBar
+          IconButton(
+            onPressed: () {
+              // Navigate to BLE connection page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BleConnectionPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bluetooth),
+            tooltip: 'Connect to Device',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -127,10 +144,10 @@ class _HomePageState extends State<HomePage> {
                               child: ElevatedButton(
                                 onPressed:
                                     _targetPressure > AppConstants.minPressure
-                                    ? () => _onTargetPressureChanged(
-                                        _targetPressure - 1,
-                                      )
-                                    : null,
+                                        ? () => _onTargetPressureChanged(
+                                              _targetPressure - 1,
+                                            )
+                                        : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
@@ -153,9 +170,8 @@ class _HomePageState extends State<HomePage> {
                               child: ElevatedButton(
                                 onPressed: _toggleInflation,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isInflating
-                                      ? Colors.red
-                                      : Colors.green,
+                                  backgroundColor:
+                                      _isInflating ? Colors.red : Colors.green,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 16,
@@ -181,10 +197,10 @@ class _HomePageState extends State<HomePage> {
                               child: ElevatedButton(
                                 onPressed:
                                     _targetPressure < AppConstants.maxPressure
-                                    ? () => _onTargetPressureChanged(
-                                        _targetPressure + 1,
-                                      )
-                                    : null,
+                                        ? () => _onTargetPressureChanged(
+                                              _targetPressure + 1,
+                                            )
+                                        : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   foregroundColor: Colors.white,
@@ -233,18 +249,18 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        _selectedVehicleType == type
+                                    backgroundColor: _selectedVehicleType ==
+                                            type
                                         ? Theme.of(
                                             context,
                                           ).colorScheme.secondary
                                         : Theme.of(context).colorScheme.surface,
                                     foregroundColor:
                                         _selectedVehicleType == type
-                                        ? Colors.white
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
+                                            ? Colors.white
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 12,
                                     ),
@@ -278,11 +294,11 @@ class _HomePageState extends State<HomePage> {
                                   if (value != upperValue) {
                                     _vehicleController.value =
                                         _vehicleController.value.copyWith(
-                                          text: upperValue,
-                                          selection: TextSelection.collapsed(
-                                            offset: upperValue.length,
-                                          ),
-                                        );
+                                      text: upperValue,
+                                      selection: TextSelection.collapsed(
+                                        offset: upperValue.length,
+                                      ),
+                                    );
                                   }
                                   _onVehicleNumberChanged(upperValue);
                                 },
@@ -292,8 +308,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const SizedBox(width: 8),
                             ElevatedButton(
-                              onPressed:
-                                  _vehicleNumber != null &&
+                              onPressed: _vehicleNumber != null &&
                                       _vehicleNumber!.isNotEmpty
                                   ? _navigateToVehicleInflation
                                   : null,

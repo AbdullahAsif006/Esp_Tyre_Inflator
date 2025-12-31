@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.esp_tyre_inflator"
+    namespace = "com.example.esp_tyre_inflator" 
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
