@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/shared_app_bar.dart'; // Add this import
 import '../models/tyre_reading.dart';
 
 class VehicleInflationPage extends StatefulWidget {
@@ -57,10 +58,9 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Vehicle: ${widget.vehicleNumber}'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.black,
+      appBar: SharedAppBar(
+        title: 'Vehicle: ${widget.vehicleNumber}',
+        showBackButton: true,
       ),
       body: Container(
         width: double.infinity,
@@ -117,9 +117,8 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
 
   Widget _buildMainContent(double screenHeight, double screenWidth) {
     final isCar = widget.vehicleType == 'CAR';
-    final imagePath = isCar 
-        ? 'assets/car_tyre_layout.png'
-        : 'assets/bike_tyre_layout.png';
+    final imagePath =
+        isCar ? 'assets/car_tyre_layout.png' : 'assets/bike_tyre_layout.png';
 
     return Container(
       width: double.infinity,
@@ -132,7 +131,7 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            child: isCar 
+            child: isCar
                 ? Center(
                     child: Image.asset(
                       imagePath,
@@ -144,7 +143,8 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
                 : Column(
                     children: [
                       // Padding for bike image
-                      SizedBox(height: screenHeight * 0.04), // 4% padding from top
+                      SizedBox(
+                          height: screenHeight * 0.04), // 4% padding from top
                       Center(
                         child: Image.asset(
                           imagePath,
@@ -164,7 +164,8 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
     );
   }
 
-  List<Widget> _buildTyreControls(bool isCar, double screenWidth, double screenHeight) {
+  List<Widget> _buildTyreControls(
+      bool isCar, double screenWidth, double screenHeight) {
     if (isCar) {
       return [
         // Front Left (FL) - Top Left
@@ -197,13 +198,15 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
         // Front - Right side, positioned below the bike image
         Positioned(
           right: screenWidth * 0.1,
-          top: screenHeight * 0.35, // Positioned below the bike image with padding
+          top: screenHeight *
+              0.35, // Positioned below the bike image with padding
           child: _buildTyreControlWidget('FRONT'),
         ),
         // Rear - Left side, positioned below the bike image
         Positioned(
           left: screenWidth * 0.1,
-          top: screenHeight * 0.35, // Positioned below the bike image with padding
+          top: screenHeight *
+              0.35, // Positioned below the bike image with padding
           child: _buildTyreControlWidget('REAR'),
         ),
       ];
@@ -214,7 +217,7 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
     // FIX: Using try-catch to handle potential errors
     try {
       final tyreIndex = _tyreReadings.indexWhere((t) => t.position == position);
-      
+
       if (tyreIndex == -1) {
         // Return default widget if tyre not found
         return _buildTyreControlContainer(
@@ -223,7 +226,7 @@ class _VehicleInflationPageState extends State<VehicleInflationPage> {
           targetPressure: 30.0, // Default to 30 PSI
         );
       }
-      
+
       final tyre = _tyreReadings[tyreIndex];
       return _buildTyreControlContainer(
         position: tyre.position,

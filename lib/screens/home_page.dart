@@ -1,9 +1,10 @@
 // ignore_for_file: prefer_final_fields, deprecated_member_use
 
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
-import 'vehicle_inflation_page.dart';
-import 'ble_connection_page.dart'; // Add this line
+import 'package:get/get.dart';
+import '../widgets/shared_app_bar.dart';
+import '../services/ble_controller.dart';
+import 'vehicle_inflation_page.dart'; // Add this import
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,34 +14,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? _vehicleNumber;
-  String _selectedVehicleType = 'BIKE';
-  final TextEditingController _vehicleController = TextEditingController();
+  // State variables
+  double _currentPressure = 0;
+  double _targetPressure = 32;
   bool _isInflating = false;
-  double _targetPressure = AppConstants.defaultPressure;
-  double _currentPressure = 0.0; // Always starts at 0
+  String? _selectedVehicleType = 'CAR';
+  String? _vehicleNumber;
+  final TextEditingController _vehicleController = TextEditingController();
 
-  void _navigateToVehicleInflation() {
-    if (_vehicleNumber != null && _vehicleNumber!.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VehicleInflationPage(
-            vehicleNumber: _vehicleNumber!,
-            vehicleType: _selectedVehicleType,
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter vehicle number')),
-      );
+  @override
+  void initState() {
+    super.initState();
+    // Ensure BleController is initialized
+    if (!Get.isRegistered<BleController>()) {
+      Get.put(BleController());
     }
   }
 
-  void _onVehicleNumberChanged(String value) {
+  @override
+  void dispose() {
+    _vehicleController.dispose();
+    super.dispose();
+  }
+
+  void _onTargetPressureChanged(double newPressure) {
     setState(() {
-      _vehicleNumber = value;
+      _targetPressure = newPressure.clamp(
+        AppConstants.minPressure,
+        AppConstants.maxPressure,
+      );
+    });
+  }
+
+  void _toggleInflation() {
+    setState(() {
+      _isInflating = !_isInflating;
+      if (_isInflating) {
+        // Start inflation logic
+      } else {
+        // Stop inflation logic
+      }
     });
   }
 
@@ -50,57 +63,110 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _toggleInflation() {
+  void _onVehicleNumberChanged(String value) {
     setState(() {
-      _isInflating = !_isInflating;
-
-      if (_isInflating) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inflation started'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inflation stopped'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      _vehicleNumber = value.isNotEmpty ? value : null;
     });
   }
 
-  void _onTargetPressureChanged(double newPressure) {
-    setState(() {
-      _targetPressure = newPressure;
-    });
+  void _navigateToVehicleInflation() {
+    if (_vehicleNumber != null && _vehicleNumber!.isNotEmpty && _selectedVehicleType != null) {
+      Get.to(() => VehicleInflationPage(
+        vehicleNumber: _vehicleNumber!,
+        vehicleType: _selectedVehicleType!,
+      ));
+    } else {
+      // Show error message if vehicle number is empty
+      Get.snackbar(
+        'Error',
+        'Please enter a vehicle number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Widget _buildPressureBox(String label, String value, Color color) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'PSI',
+                  style: TextStyle(fontSize: 14, color: color.withOpacity(0.8)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatBox(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Tyre Inflator"),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.black,
-        actions: [
-          // Add Connect button in AppBar
-          IconButton(
-            onPressed: () {
-              // Navigate to BLE connection page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BleConnectionPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.bluetooth),
-            tooltip: 'Connect to Device',
-          ),
-        ],
+      appBar: SharedAppBar(
+        title: 'Tyre Inflator',
+        showBackButton: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -333,7 +399,7 @@ class _HomePageState extends State<HomePage> {
 
                 const SizedBox(height: 16),
 
-                // Stats Card - UPDATED: Tyre and Vehicle count with spacing
+                // Stats Card
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -344,17 +410,11 @@ class _HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 16),
-                        // Tyre and Vehicle count with spacing
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Tyre Count Box
                             Expanded(child: _buildStatBox('Tyres', '12')),
-
-                            // Spacing between boxes - UPDATED: Increased spacing
                             const SizedBox(width: 20),
-
-                            // Vehicle Count Box
                             Expanded(child: _buildStatBox('Vehicles', '8')),
                           ],
                         ),
@@ -369,79 +429,10 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
 
-  Widget _buildPressureBox(String label, String value, Color color) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color, width: 2),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'PSI',
-                  style: TextStyle(fontSize: 14, color: color.withOpacity(0.8)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatBox(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-          width: 2,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+// App constants class
+class AppConstants {
+  static const double minPressure = 0;
+  static const double maxPressure = 50;
 }
