@@ -1,32 +1,28 @@
-name: esp_tyre_inflator
-description: "Tyre Inflation App with BLE"
+name: tyre_inflator
+description: A tyre inflation app with BLE connectivity
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"  # Simplified SDK constraint
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  flutter_blue_plus: ^1.35.0
-  get:
-  permission_handler:
+  get: ^4.6.5
   get_storage: ^2.1.1
+  flutter_blue_plus: ^1.14.3
+  permission_handler: ^12.0.1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
-  flutter_lints: ^3.0.0
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
   
   assets:
-    - assets/car_tyre_layout.png
-    - assets/bike_tyre_layout.png
+    - assets/
+    
