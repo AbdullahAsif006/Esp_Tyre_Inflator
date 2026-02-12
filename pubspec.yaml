@@ -14,7 +14,6 @@ dependencies:
   flutter_blue_plus: ^1.14.3
   permission_handler: ^12.0.1
 
-
 dev_dependencies:
   flutter_lints: ^2.0.0
 
@@ -23,4 +22,5 @@ flutter:
   
   assets:
     - assets/
-    
+    - assets/car_tyre_layout.png  # Add this line
+    - assets/bike_tyre_layout.png # Add this line
